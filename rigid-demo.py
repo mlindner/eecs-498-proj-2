@@ -128,7 +128,7 @@ def jacobian_cdas( func, scl, lint=0.8, tol=1e-12, eps = 1e-30, withScl = False 
 class Arm( object ):
     def __init__(self):
         # link lengths
-        self.ll = asarray([3,3,3])
+        # self.ll = asarray([3,3,3])
         # arm geometry to draw
         d=0.2
         hexa = asarray([
@@ -147,6 +147,14 @@ class Arm( object ):
             hexa, hexa[:,[0,2,1,3]], sqr,
         ], axis=0)
         self.geom = [( asarray([[0,0,0,1]]) ).T ]
+        tw = [
+            asarray([0, 0,  0, 0, 1, 0]),
+            asarray([0, 0, -1, 1, 0, 0]),
+            asarray([0, 0, -1, 0, 1, 0]),
+            asarray([0, 0, -2, 1, 0, 0]),
+            asarray([0, 0, -2, 0, 1, 0]),
+        ]
+        '''
         tw = []
         LL = 0
         our_twists = asarray([
@@ -163,8 +171,11 @@ class Arm( object ):
             v = -cross(w,[LL,0,0])
             tw.append( concatenate([v,w],0) )
             LL += ll
+            print tw
+        '''
         self.tw = asarray(tw)
-        self.tool = asarray([LL,0,0,1]).T
+        #self.tool = asarray([LL,0,0,1]).T
+        self.tool = asarray([-2, -2, 0, 1]).T
         # overwrite method with jacobian function
         self.getToolJac = jacobian_cdas(
             self.getTool, ones(self.tw.shape[0])*0.05
@@ -243,7 +254,7 @@ def example():
     a = Arm()
     f = gcf()
     # ang = [0,0,0,0,0,0]
-    ang = [0,0,0]
+    ang = [0,0,0,0,0]
     while 1:
         f.set(visible=0)
         clf()
