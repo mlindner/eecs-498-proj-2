@@ -127,40 +127,79 @@ def jacobian_cdas( func, scl, lint=0.8, tol=1e-12, eps = 1e-30, withScl = False 
 
 class Arm( object ):
     def __init__(self):
-        # link lengths
-        # self.ll = asarray([3,3,3])
         # arm geometry to draw
-        d=0.2
-        hexa = asarray([
-                [ 0, d,1-d, 1, 1-d, d, 0],
-                [ 0, 1,  1, 0,  -1,-1, 0],
-                [ 0, 0,  0, 0,   0, 0, 0],
-                [ 1, 1,  1, 1,   1, 1, 1],
+        # size of the cubic shape with pyramid along x axis
+        # sizes are given in diameter along axis (radius to corner of square)
+        d_x = 1.0
+        d_y = 1.0
+        d_z = 1.0
+        # length of pyramid
+        d = 0.2
+        penta = asarray([
+            [ 0,     d,   d_x,    d_x,      d, 0],
+            [ 0, d_y/2, d_y/2, -d_y/2, -d_y/2, 0],
+            [ 0,     0,     0,      0,      0, 0],
+            [ 1,     1,     1,      1,      1, 1],
         ]).T
         sqr = asarray([
-                [ d, d, d, d, d, 1-d, 1-d, 1-d, 1-d, 1-d],
-                [ 1, 0,-1, 0, 1, 1, 0,-1, 0, 1 ],
-                [ 0, 1, 0,-1, 0, 0, 1, 0,-1, 0],
-                [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
+            [     d,     d,      d,      d,     d,   d_x,   d_x,    d_x,    d_x,   d_x ],
+            [ d_y/2,     0, -d_y/2,      0, d_y/2, d_y/2,     0, -d_y/2,      0, d_y/2 ],
+            [     0, d_z/2,      0, -d_z/2,     0,     0, d_z/2,      0, -d_z/2,     0 ],
+            [     1,     1,      1,      1,     1,     1,     1,      1,      1,     1 ],
         ]).T
         geom = concatenate([
-            hexa, hexa[:,[0,2,1,3]], sqr,
+            penta, penta[:,[0,2,1,3]], sqr,
         ], axis=0)
-        self.geom = [( asarray([[0,0,0,1]]) ).T ]
+        self.geom = [asarray([[0,0,0,1]]).T ]
+
         tw = [
             asarray([0, 0,  0, 0, 1, 0]),
             asarray([0, 0, -1, 1, 0, 0]),
-            asarray([0, 0, -1, 0, 1, 0]),
+            asarray([0, 0, 1, 0, 1, 0]),
             asarray([0, 0, -2, 1, 0, 0]),
-            asarray([0, 0, -2, 0, 1, 0]),
+            asarray([0, 0, 2, 0, 1, 0]),
         ]
+        tw = tw[:5]
+
+        transforms = [
+           [[ 0, 1, 0, 0],
+            [ 1, 0, 0, 0],
+            [ 0, 0, 1, 0],
+            [ 0, 0, 0, 1]],
+           [[ 1, 0, 0, 0],
+            [ 0, 1, 0, 1],
+            [ 0, 0, 1, 0],
+            [ 0, 0, 0, 1]],
+           [[ 0, 1, 0, 1],
+            [ 1, 0, 0, 1],
+            [ 0, 0, 1, 0],
+            [ 0, 0, 0, 1]],
+           [[ 1, 0, 0, 1],
+            [ 0, 1, 0, 2],
+            [ 0, 0, 1, 0],
+            [ 0, 0, 0, 1]],
+           [[ 0, 1, 0, 2],
+            [ 1, 0, 0, 2],
+            [ 0, 0, 1, 0],
+            [ 0, 0, 0, 1]],
+        ]
+        transforms = transforms[:5]
+        for transformer in transforms:
+            self.geom.append(dot(transformer, geom.T))
+        print self.geom
+
         '''
+        # link lengths
+        self.ll = asarray([1,3,3,3,3])
+
         tw = []
         LL = 0
         our_twists = asarray([
                 [0, 0, 1],
                 [0, 1, 0],
-                [1, 0, 1],
+                [1, 0, 0],
+                [0, 0, 1],
+                [0, 1, 0],
         ])
         for n,ll in enumerate(self.ll):
             self.geom.append(
@@ -175,7 +214,7 @@ class Arm( object ):
         '''
         self.tw = asarray(tw)
         #self.tool = asarray([LL,0,0,1]).T
-        self.tool = asarray([-2, -2, 0, 1]).T
+        self.tool = asarray([2, 3, 0, 1]).T
         # overwrite method with jacobian function
         self.getToolJac = jacobian_cdas(
             self.getTool, ones(self.tw.shape[0])*0.05
@@ -224,7 +263,7 @@ class Arm( object ):
 
 
     def plot3D( self, ang ):
-        ax = [-20,20,-20,20]
+        ax = [-5,5,-5,5]
         subplot(2,2,1)
         self.plotIJ(ang,0,1)
         axis('equal')
@@ -232,11 +271,11 @@ class Arm( object ):
         grid(1)
         xlabel('X'); ylabel('Y')
         subplot(2,2,2)
-        self.plotIJ(ang,2,1)
+        self.plotIJ(ang,1,2)
         axis('equal')
         axis(ax)
         grid(1)
-        xlabel('Z'); ylabel('Y')
+        xlabel('Y'); ylabel('Z')
         subplot(2,2,3)
         self.plotIJ(ang,0,2)
         axis('equal')
