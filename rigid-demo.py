@@ -313,7 +313,7 @@ def paper_to_world(x, y):
     return [x, y, 0, 1]
 
 # Create list of n points interpolating between start and end
-def interpolate(start, end, n)
+def interpolate(start, end, n):
     return [ (end - start) * float(i+1)/(n+1) + start for i in range(n) ]
 
 offsets = [pi/2, pi/2, pi/2]
@@ -328,6 +328,7 @@ def example():
     f = gcf()
     ang = [0.0, 0.0, 0.0]
     while 1:
+        print a.getTool(ang)
         f.set(visible=0)
         clf()
         a.plot3D(ang)
@@ -336,11 +337,11 @@ def example():
         print "Angles: ",ang
         d = input("position as list / angles as tuple?>")
         if type(d) == list:
-            #for pos in interpolate(a.getTool(ang), d, 500)
-            Jt = a.getToolJac(ang)
-            ang = ang + dot(pinv(Jt)[:,:len(d)],d)
+            for pos in interpolate(a.getTool(ang), d, 500)
+                diff = d - a.getTool(ang)
+                Jt = a.getToolJac(ang)
+                ang = ang + dot(pinv(Jt)[:,:len(d)], diff)
         else:
             ang = d
-        print a.getTool(ang)
 
         set_motor_angles(ang)
