@@ -5,7 +5,8 @@ import ckbot.logical as L
 
 c = L.Cluster()
 c.populate(3)
-motors = [motor[1] for motor in c.items()]
+motor_order = [1, 2, 0]
+motors = [c.items()[i][1] for i in motor_order]
 
 def seToSE( x ):
     """
