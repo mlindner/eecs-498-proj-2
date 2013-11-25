@@ -3,7 +3,7 @@ from scipy.linalg import expm as expM
 from scipy import pi
 import ckbot.logical as L
 
-c = L.cluster()
+c = L.Cluster()
 c.populate(1)
 motors = [motor[1] for motor in c.items()]
 
