@@ -368,7 +368,9 @@ def example():
     a = Arm()
     f = gcf()
     ang = [0.0, 0.0, 0.0]
-    calibration = [[0, 0, 0,], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    calibration = [[-7927, -8530, 9353], [-4416, -9435, 9243], [-3017, -9380, 8009], [-8201, -2331, 13824]]
+    calibration = (calibration * pi) / 18000
+
     mat_trans = get_paper_transform_matrix(calibration)
     while 1:
         graph(f, a, ang)
@@ -377,11 +379,11 @@ def example():
         d = input("position as list / angles as tuple?>")
         if type(d) == list:
             if shape(d) == tuple([3]):
-                #d = paper_to_world(d, mat_trans)
+                d = paper_to_world(d, mat_trans)
                 ang = goto_pos(d, ang, a)
             else:
                 for coord in d:
-                    #coord = paper_to_world(coord, mat_trans)
+                    coord = paper_to_world(coord, mat_trans)
                     ang = goto_pos(coord, ang, a)
                     graph(f, a, ang)
         else:
