@@ -4,7 +4,7 @@ from scipy import pi
 import ckbot.logical as L
 
 c = L.Cluster()
-c.populate(1)
+c.populate(3)
 motors = [motor[1] for motor in c.items()]
 
 def seToSE( x ):
