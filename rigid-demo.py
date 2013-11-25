@@ -1,7 +1,7 @@
 
 from scipy.linalg import expm as expM
 from scipy import pi
-import ckbot.logcal as L
+import ckbot.logical as L
 
 c = L.cluster()
 c.populate(1)
