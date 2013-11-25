@@ -304,6 +304,18 @@ def set_motor_ang(motor, ang):
     pos = int(round(fractional_angle * 1023))
     motor.pna.mem_write_fast(motor.mcu.goal_position, pos)
 
+def set_motor_angles(ang):
+    for motor, angle in zip(motors, ang):
+        set_motor_ang(motor, angle)
+
+# Convert Paper frame coordinates to World frame coordinates
+def paper_to_world(x, y):
+    return [x, y, 0, 1]
+
+# Create list of n points interpolating between start and end
+def interpolate(start, end, n)
+    return [ (end - start) * float(i+1)/(n+1) + start for i in range(n) ]
+
 offsets = [pi/2, pi/2, pi/2]
 
 def example():
@@ -322,13 +334,13 @@ def example():
         f.set(visible=1)
         draw()
         print "Angles: ",ang
-        d = input("direction as list / angles as tuple?>")
+        d = input("position as list / angles as tuple?>")
         if type(d) == list:
+            #for pos in interpolate(a.getTool(ang), d, 500)
             Jt = a.getToolJac(ang)
             ang = ang + dot(pinv(Jt)[:,:len(d)],d)
         else:
             ang = d
         print a.getTool(ang)
 
-        for motor, angle in zip(motors, ang):
-            set_motor_ang(motor, angle)
+        set_motor_angles(ang)
