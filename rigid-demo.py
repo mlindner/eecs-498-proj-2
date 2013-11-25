@@ -11,8 +11,8 @@ motors = [c.items()[i][1] for i in motor_order]
 for m in motors:
     m.pna.mem_write_fast(m.mcu.ccw_angle_limit, 1023)
     m.pna.mem_write_fast(m.mcu.cw_angle_limit, 0)
-    m.pna.mem_write_fast(m.mcu.ccw_compliance_slope, 4)
-    m.pna.mem_write_fast(m.mcu.cw_compliance_slope, 4)
+    m.pna.mem_write_fast(m.mcu.ccw_compliance_slope, 16)
+    m.pna.mem_write_fast(m.mcu.cw_compliance_slope, 16)
 
 
 def seToSE( x ):
