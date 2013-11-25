@@ -8,6 +8,13 @@ c.populate(3)
 motor_order = [1, 2, 0]
 motors = [c.items()[i][1] for i in motor_order]
 
+for m in motors:
+    m.pna.mem_write_fast(m.mcu.ccw_angle_limit, 1023)
+    m.pna.mem_write_fast(m.mcu.cw_angle_limit, 0)
+    m.pna.mem_write_fast(m.mcu.ccw_compliance_slope, 4)
+    m.pna.mem_write_fast(m.mcu.cw_compliance_slope, 4)
+
+
 def seToSE( x ):
     """
     Convert a twist (a rigid velocity, element of se(3)) to a rigid
@@ -288,19 +295,16 @@ def center(value, lower, upper):
     while value > upper:
         value = value - upper
     while value < lower:
-        value = value - lower
+        value = value + upper
     return value
 
 def set_motor_ang(motor, ang):
-    fractional_angle = center(ang, -pi, pi) / pi
-    if ang < 0:
-        pos = -fractional_angle * 1023 + 1024
-    else:
-        pos = fractional_angle * 1023
-    motor.pna.mem_write_fast(motor.mcu.goal_position, int(round(pos)))
+    fractional_angle = center(ang, 0, pi) / pi
+    pos = int(round(fractional_angle * 1023))
+    motor.pna.mem_write_fast(motor.mcu.goal_position, pos)
 
 #offsets = [-pi/4, 0, -pi/4]
-offsets = [0, 0, 0]
+offsets = [pi/2, pi/2, pi/2]
 
 def example():
     """
