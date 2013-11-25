@@ -283,7 +283,7 @@ class Arm( object ):
 def clip(value, lower, upper):
     return min(max(value, lower), upper)
 
-def center(value, lower, upper)
+def center(value, lower, upper):
     while value > upper:
         value = value - upper
     while value < lower:
@@ -293,7 +293,7 @@ def set_motor_ang(motor, ang):
     fractional_angle = center(ang, -pi, pi) / pi
     if ang < 0:
         pos = -fractional_angle * 1023 + 1024
-    else
+    else:
         pos = fractional_angle * 1023
     motor.pna.mem_write_fast(motor.mcu.goal_position, int(round(pos)))
 
