@@ -299,7 +299,8 @@ def set_motor_ang(motor, ang):
         pos = fractional_angle * 1023
     motor.pna.mem_write_fast(motor.mcu.goal_position, int(round(pos)))
 
-offsets = [-pi/4, 0, -pi/4]
+#offsets = [-pi/4, 0, -pi/4]
+offsets = [0, 0, 0]
 
 def example():
     """
