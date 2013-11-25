@@ -189,7 +189,6 @@ class Arm( object ):
         transforms = transforms[:3]
         for transformer in transforms:
             self.geom.append(dot(transformer, geom.T))
-        print self.geom
 
         '''
         # link lengths
@@ -318,6 +317,29 @@ def interpolate(start, end, n):
 
 offsets = [pi/2, pi/2, pi/2]
 
+def goto_pos(pos, ang, arm):
+    for iter_pos in interpolate(arm.getTool(ang)[:-1], pos, 500):
+
+        diff = iter_pos - arm.getTool(ang)[:-1]
+
+        # Check if code went nuts and trying to do large movements
+        for coord in diff:
+            if abs(coord) > 2:
+                return ang
+
+        print iter_pos, diff, arm.getTool(ang)[:-1]
+        Jt = arm.getToolJac(ang)
+        ang = ang + dot(pinv(Jt)[:,:len(diff)], diff)
+        set_motor_angles(ang)
+    return ang
+
+def graph(fig, arm, ang):
+    fig.set(visible=0)
+    clf()
+    arm.plot3D(ang)
+    fig.set(visible=1)
+    draw()
+
 def example():
     """
     Run an example of a robot arm
@@ -328,20 +350,18 @@ def example():
     f = gcf()
     ang = [0.0, 0.0, 0.0]
     while 1:
-        print a.getTool(ang)
-        f.set(visible=0)
-        clf()
-        a.plot3D(ang)
-        f.set(visible=1)
-        draw()
+        graph(f, a, ang)
         print "Angles: ",ang
+        print "Tool position: ", a.getTool(ang)[:-1]
         d = input("position as list / angles as tuple?>")
         if type(d) == list:
-            for pos in interpolate(a.getTool(ang), d, 500)
-                diff = d - a.getTool(ang)
-                Jt = a.getToolJac(ang)
-                ang = ang + dot(pinv(Jt)[:,:len(d)], diff)
+            if shape(d) == tuple([3]):
+                ang = goto_pos(d, ang, a)
+            else:
+                for coord in d:
+                    ang = goto_pos(coord, ang, a)
+                    graph(f, a, ang)
         else:
             ang = d
+            set_motor_angles(ang)
 
-        set_motor_angles(ang)
