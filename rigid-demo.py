@@ -288,6 +288,7 @@ def center(value, lower, upper):
         value = value - upper
     while value < lower:
         value = value - lower
+    return value
 
 def set_motor_ang(motor, ang):
     fractional_angle = center(ang, -pi, pi) / pi
