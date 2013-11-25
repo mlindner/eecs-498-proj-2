@@ -298,6 +298,8 @@ def set_motor_ang(motor, ang):
         pos = fractional_angle * 1023
     motor.pna.mem_write_fast(motor.mcu.goal_position, int(round(pos)))
 
+offsets = [-pi/4, 0, -pi/4]
+
 def example():
     """
     Run an example of a robot arm
@@ -322,5 +324,5 @@ def example():
         else:
             ang = d
 
-        for motor, angle in zip(motors, ang):
-            set_motor_ang(motor, angle)
+        for motor, angle in zip(motors, ang, offsets):
+            set_motor_ang(motor, angle + offsets)
