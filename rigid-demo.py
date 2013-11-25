@@ -299,7 +299,8 @@ def center(value, lower, upper):
     return value
 
 def set_motor_ang(motor, ang):
-    fractional_angle = center(ang, 0, pi) / pi
+    deg = ang / pi * 180
+    fractional_angle = (clip(deg, -150, 150) + 150)/300
     pos = int(round(fractional_angle * 1023))
     motor.pna.mem_write_fast(motor.mcu.goal_position, pos)
 
@@ -330,5 +331,5 @@ def example():
         else:
             ang = d
 
-        for motor, angle, offset in zip(motors, ang, offsets):
-            set_motor_ang(motor, angle + offset)
+        for motor, angle in zip(motors, ang):
+            set_motor_ang(motor, angle)
