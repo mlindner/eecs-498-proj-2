@@ -167,7 +167,7 @@ class Arm( object ):
 
         tw = [
             asarray([0, 0,  0, 0, 0, 1]),
-            asarray([0, 20, 0, 1, 0, 0]),
+            asarray([0, 20.5, 0, 1, 0, 0]),
             asarray([0, -34, 0, -1, 0, 0]),
         ]
         tw = tw[:3]
@@ -216,7 +216,8 @@ class Arm( object ):
         '''
         self.tw = asarray(tw)
         #self.tool = asarray([LL,0,0,1]).T
-        self.tool = asarray([-8.5, 0.0, 20+14+28+7.0, 1.0]).T
+#       self.tool = asarray([-8.5, 0.0, 20+14+28+7.0, 1.0]).T
+        self.tool = asarray([-8, 0.0, 66.5, 1.0]).T
         # overwrite method with jacobian function
         self.getToolJac = jacobian_cdas(
             self.getTool, ones(self.tw.shape[0])*0.05
@@ -308,8 +309,10 @@ def set_motor_angles(ang):
         set_motor_ang(motor, angle)
 
 # Convert Paper frame coordinates to World frame coordinates
-def paper_to_world(x, y):
-    return [x, y, 0, 1]
+def paper_to_world(coords, transform):
+    if shape(coords) != tuple([4])
+        coords = coords.append([1])
+    return coords * transform
 
 # Create list of n points interpolating between start and end
 def interpolate(start, end, n):
@@ -333,6 +336,22 @@ def goto_pos(pos, ang, arm):
         set_motor_angles(ang)
     return ang
 
+def get_paper_transform_matrix(P):
+    t1 = P[0,0]
+    t2 = P[0,1]
+    t3 = P[0,2]
+    r1 = P[1,0]-t1
+    r4 = P[1,1]-t2
+    r7 = P[1,2]-t3
+    r2 = P[2,0]-t1
+    r5 = P[2,1]-t2
+    r8 = P[2,2]-t3
+    r3 = P[3,0]-t1
+    r6 = P[3,1]-t2
+    r9 = P[3,2]-t3
+    H = asarray([[r1,r2,r3,t1],[r4,r5,r6,t2],[r7,r8,r9,t3],[0,0,0,1]])
+    return H
+
 def graph(fig, arm, ang):
     fig.set(visible=0)
     clf()
@@ -349,6 +368,8 @@ def example():
     a = Arm()
     f = gcf()
     ang = [0.0, 0.0, 0.0]
+    calibration = [[0, 0, 0,], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    mat_trans = get_paper_transform_matrix(calibration)
     while 1:
         graph(f, a, ang)
         print "Angles: ",ang
@@ -356,9 +377,11 @@ def example():
         d = input("position as list / angles as tuple?>")
         if type(d) == list:
             if shape(d) == tuple([3]):
+                #d = paper_to_world(d, mat_trans)
                 ang = goto_pos(d, ang, a)
             else:
                 for coord in d:
+                    #coord = paper_to_world(coord, mat_trans)
                     ang = goto_pos(coord, ang, a)
                     graph(f, a, ang)
         else:
