@@ -304,7 +304,6 @@ def set_motor_ang(motor, ang):
     pos = int(round(fractional_angle * 1023))
     motor.pna.mem_write_fast(motor.mcu.goal_position, pos)
 
-#offsets = [-pi/4, 0, -pi/4]
 offsets = [pi/2, pi/2, pi/2]
 
 def example():
@@ -315,8 +314,7 @@ def example():
     """
     a = Arm()
     f = gcf()
-    # ang = [0,0,0,0,0,0]
-    ang = [0,0,0]
+    ang = [0.0, 0.0, 0.0]
     while 1:
         f.set(visible=0)
         clf()
@@ -330,6 +328,7 @@ def example():
             ang = ang + dot(pinv(Jt)[:,:len(d)],d)
         else:
             ang = d
+        print a.getTool(ang)
 
         for motor, angle in zip(motors, ang):
             set_motor_ang(motor, angle)
