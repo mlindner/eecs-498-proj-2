@@ -1,6 +1,11 @@
 
 from scipy.linalg import expm as expM
+from scipy import pi
+import ckbot.logcal as L
 
+c = L.cluster()
+c.populate(1)
+motors = [motor[1] for motor in c.items()]
 
 def seToSE( x ):
     """
@@ -153,37 +158,27 @@ class Arm( object ):
         self.geom = [asarray([[0,0,0,1]]).T ]
 
         tw = [
-            asarray([0, 0,  0, 0, 1, 0]),
-            asarray([0, 0, -1, 1, 0, 0]),
-            asarray([0, 0, 1, 0, 1, 0]),
-            asarray([0, 0, -2, 1, 0, 0]),
-            asarray([0, 0, 2, 0, 1, 0]),
+            asarray([0, 0,  0, 0, 0, 1]),
+            asarray([0, 20, 0, 1, 0, 0]),
+            asarray([0, -34, 0, -1, 0, 0]),
         ]
-        tw = tw[:5]
+        tw = tw[:3]
 
         transforms = [
-           [[ 0, 1, 0, 0],
-            [ 1, 0, 0, 0],
-            [ 0, 0, 1, 0],
+           [[ 0, 0, 6.8, 0],
+            [ 0, 6.8, 0, 0],
+            [ 24.5, 0, 0, 0],
             [ 0, 0, 0, 1]],
-           [[ 1, 0, 0, 0],
-            [ 0, 1, 0, 1],
-            [ 0, 0, 1, 0],
+           [[ 8.8, 0, 0, 3],
+            [ 0, 6.8, 0, 0],
+            [ 0, 0, 6.8, 20],
             [ 0, 0, 0, 1]],
-           [[ 0, 1, 0, 1],
-            [ 1, 0, 0, 1],
-            [ 0, 0, 1, 0],
-            [ 0, 0, 0, 1]],
-           [[ 1, 0, 0, 1],
-            [ 0, 1, 0, 2],
-            [ 0, 0, 1, 0],
-            [ 0, 0, 0, 1]],
-           [[ 0, 1, 0, 2],
-            [ 1, 0, 0, 2],
-            [ 0, 0, 1, 0],
+           [[ -8.8, 0, 0, 3],
+            [ 0, 6.8, 0, 0],
+            [ 0, 0, 6.8, 34],
             [ 0, 0, 0, 1]],
         ]
-        transforms = transforms[:5]
+        transforms = transforms[:3]
         for transformer in transforms:
             self.geom.append(dot(transformer, geom.T))
         print self.geom
@@ -214,7 +209,7 @@ class Arm( object ):
         '''
         self.tw = asarray(tw)
         #self.tool = asarray([LL,0,0,1]).T
-        self.tool = asarray([2, 3, 0, 1]).T
+        self.tool = asarray([-8.5, 0.0, 20+14+28+7.0, 1.0]).T
         # overwrite method with jacobian function
         self.getToolJac = jacobian_cdas(
             self.getTool, ones(self.tw.shape[0])*0.05
@@ -263,26 +258,44 @@ class Arm( object ):
 
 
     def plot3D( self, ang ):
-        ax = [-5,5,-5,5]
+        #ax = [-90,90,-90,90]
+        ax = [-40,40,-40,40]
         subplot(2,2,1)
         self.plotIJ(ang,0,1)
         axis('equal')
-        axis(ax)
+        #axis(ax)
         grid(1)
         xlabel('X'); ylabel('Y')
         subplot(2,2,2)
         self.plotIJ(ang,1,2)
         axis('equal')
-        axis(ax)
+        #axis(ax)
         grid(1)
         xlabel('Y'); ylabel('Z')
         subplot(2,2,3)
         self.plotIJ(ang,0,2)
         axis('equal')
-        axis(ax)
+        #axis(ax)
         grid(1)
         xlabel('X'); ylabel('Z')
 
+# Clip value to lower and upper bounds
+def clip(value, lower, upper):
+    return min(max(value, lower), upper)
+
+def center(value, lower, upper)
+    while value > upper:
+        value = value - upper
+    while value < lower:
+        value = value - lower
+
+def set_motor_ang(motor, ang):
+    fractional_angle = center(ang, -pi, pi) / pi
+    if ang < 0:
+        pos = -fractional_angle * 1023 + 1024
+    else
+        pos = fractional_angle * 1023
+    motor.pna.mem_write_fast(motor.mcu.goal_position, int(round(pos)))
 
 def example():
     """
@@ -293,7 +306,7 @@ def example():
     a = Arm()
     f = gcf()
     # ang = [0,0,0,0,0,0]
-    ang = [0,0,0,0,0]
+    ang = [0,0,0]
     while 1:
         f.set(visible=0)
         clf()
@@ -307,3 +320,6 @@ def example():
             ang = ang + dot(pinv(Jt)[:,:len(d)],d)
         else:
             ang = d
+
+        for a, m in zip(ang, motors):
+            set_motor_ang(m, a)
