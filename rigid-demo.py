@@ -324,5 +324,5 @@ def example():
         else:
             ang = d
 
-        for motor, angle in zip(motors, ang, offsets):
-            set_motor_ang(motor, angle + offsets)
+        for motor, angle, offset in zip(motors, ang, offsets):
+            set_motor_ang(motor, angle + offset)
