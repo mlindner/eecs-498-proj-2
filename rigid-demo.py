@@ -310,9 +310,12 @@ def set_motor_angles(ang):
 
 # Convert Paper frame coordinates to World frame coordinates
 def paper_to_world(coords, transform):
-    if shape(coords) != tuple([4])
-        coords = coords.append([1])
-    return coords * transform
+    c = asfarray(coords)
+    t = asfarray(transform)
+    if c.size<4:
+        c = asfarray(list(c)+[1])
+    transformed_array = dot(t,c)[:-1]
+    return transformed_array
 
 # Create list of n points interpolating between start and end
 def interpolate(start, end, n):
@@ -337,18 +340,19 @@ def goto_pos(pos, ang, arm):
     return ang
 
 def get_paper_transform_matrix(P):
+    c = 10
     t1 = P[0,0]
     t2 = P[0,1]
     t3 = P[0,2]
-    r1 = P[1,0]-t1
-    r4 = P[1,1]-t2
-    r7 = P[1,2]-t3
-    r2 = P[2,0]-t1
-    r5 = P[2,1]-t2
-    r8 = P[2,2]-t3
-    r3 = P[3,0]-t1
-    r6 = P[3,1]-t2
-    r9 = P[3,2]-t3
+    r1 = (P[1,0]-t1)/c
+    r4 = (P[1,1]-t2)/c
+    r7 = (P[1,2]-t3)/c
+    r2 = (P[2,0]-t1)/c
+    r5 = (P[2,1]-t2)/c
+    r8 = (P[2,2]-t3)/c
+    r3 = (P[3,0]-t1)/c
+    r6 = (P[3,1]-t2)/c
+    r9 = (P[3,2]-t3)/c
     H = asarray([[r1,r2,r3,t1],[r4,r5,r6,t2],[r7,r8,r9,t3],[0,0,0,1]])
     return H
 
@@ -368,8 +372,8 @@ def example():
     a = Arm()
     f = gcf()
     ang = [0.0, 0.0, 0.0]
-    calibration = [[-7927, -8530, 9353], [-4416, -9435, 9243], [-3017, -9380, 8009], [-8201, -2331, 13824]]
-    calibration = (calibration * pi) / 18000
+    calibration = asarray([[10.29535101,27.84015137,1.22089742],[1.4788487,31.20673289,0.43823847],[ 11.51182565,33.73670722,7.44454401],[5.20081671,23.76730423,10.82195407]])
+
 
     mat_trans = get_paper_transform_matrix(calibration)
     while 1:
