@@ -190,33 +190,7 @@ class Arm( object ):
         for transformer in transforms:
             self.geom.append(dot(transformer, geom.T))
 
-        '''
-        # link lengths
-        self.ll = asarray([1,3,3,3,3])
-
-        tw = []
-        LL = 0
-        our_twists = asarray([
-                [0, 0, 1],
-                [0, 1, 0],
-                [1, 0, 0],
-                [0, 0, 1],
-                [0, 1, 0],
-        ])
-        for n,ll in enumerate(self.ll):
-            self.geom.append(
-                ( asarray([ll,1,1,1])*geom+[LL,0,0,0] ).T
-            )
-            #w = asarray([0,(n+1) % 2, n % 2])
-            w = our_twists[n]
-            v = -cross(w,[LL,0,0])
-            tw.append( concatenate([v,w],0) )
-            LL += ll
-            print tw
-        '''
         self.tw = asarray(tw)
-        #self.tool = asarray([LL,0,0,1]).T
-#       self.tool = asarray([-8.5, 0.0, 20+14+28+7.0, 1.0]).T
         self.tool = asarray([-8, 0.0, 66.5, 1.0]).T
         # overwrite method with jacobian function
         self.getToolJac = jacobian_cdas(
@@ -393,4 +367,3 @@ def example():
         else:
             ang = d
             set_motor_angles(ang)
-
